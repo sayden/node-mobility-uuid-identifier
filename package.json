@@ -1,0 +1,38 @@
+{
+  "name": "node-mobility-uuid-identifier",
+  "description": "A nodejs tool to retrieve unique identifiers from source code of mobility applications",
+  "version": "0.1.0",
+  "homepage": "https://github.com/sayden/node-mobility-uuid-identifier",
+  "author": {
+    "name": "Mario Castro",
+    "email": "mariocaster@gmail.com",
+    "url": "http://mariocaster.blogspot.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sayden/node-mobility-uuid-identifier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sayden/node-mobility-uuid-identifier/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/sayden/node-mobility-uuid-identifier/blob/master/LICENSE"
+    }
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt": "~0.4.5"
+  },
+  "keywords": []
+}
