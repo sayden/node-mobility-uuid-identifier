@@ -12,7 +12,7 @@ var Q = require('q');
 var fs = require('fs');
 var TestConstants = require('./../TestConstants');
 
-describe.only('Node UID project extractor', function () {
+describe('Node UID project extractor', function () {
 
     it('should return the unique identifier of an iOS project', function (done) {
         mobility_uuid_identifier.getUniqueIdentifier(TestConstants.IOS_TEST_PROJECTS_PATH[0])

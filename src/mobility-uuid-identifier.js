@@ -36,14 +36,14 @@ exports.getUniqueIdentifier = function (folderPath) {
                     defer.resolve(uid);
                 }).catch(defer.reject);
             case IOS:
-                return getBundleIdiOS(folderPath).then(function (uid) {
+                return getIosBundleId(folderPath).then(function (uid) {
                     defer.resolve(uid);
                 }).catch(defer.reject);
             case WINDOWS_PHONE:
                 //TODO Add code to get unique identifiers of WP projects
-                return defer.reject(new Error('Windows phone project are not implemented yet'));
-            default:
-                return defer.reject(new Error('Uncaught error when trying to get unique idenfier for project: Project type not recognized'));
+                return defer.resolve('A uuid for windows phone');
+            case NOT_RECOGNIZED:
+                return defer.resolve('Project type not recognized');
         }
     }).catch(defer.reject);
 
@@ -59,17 +59,17 @@ exports.getProjectType = function (folderPath) {
     var defer = Q.defer();
 
     isIosProject(folderPath).then(function(isIOS){
-        if (isIOS){
+        if (isIOS === true){
             printInfo('Project recognized as iOS project');
             defer.resolve(IOS);
         } else {
             isAndroidProject(folderPath).then(function(isAndroid){
-                if(isAndroid) {
+                if(isAndroid === true) {
                     printInfo('Project recognized as Android project');
                     defer.resolve(ANDROID);
                 } else {
                     isWindowsPhoneProject(folderPath).then(function(isWindowsPhone){
-                        if(isWindowsPhone){
+                        if(isWindowsPhone === true){
                             defer.resolve(WINDOWS_PHONE);
                         } else {
                             defer.resolve(NOT_RECOGNIZED);
@@ -83,6 +83,14 @@ exports.getProjectType = function (folderPath) {
     return defer.promise;
 };
 
+exports.setLog = function(_isLogging){
+    logging = _isLogging;
+};
+
+exports.getLog = function(){
+    return logging;
+};
+
 /**
  * TODO Comment
  * @param {string} filename
@@ -93,6 +101,8 @@ var getFilePath = function (filename, path) {
     var defer = Q.defer();
     recursive(path, function (err, filesArray) {
         if (err) {
+            printError('Error when trying to search a file with name "' + filename + '" using the following path: "'
+                + path + '"');
             return defer.reject(new Error(err));
         } else {
             _.find(filesArray, function (file) {
@@ -108,7 +118,7 @@ var getFilePath = function (filename, path) {
     return defer.promise;
 };
 
-var getBundleIdiOS = function (projectPath, cb) {
+var getIosBundleId = function (projectPath) {
     var defer = Q.defer();
     var infoPlistPath, pbxFilePath, productName;
 
@@ -171,7 +181,7 @@ var getAndroidPackageName = function (folderPath) {
             }
         }
 
-        return defer.reject(new Error('No attribute package found'));
+        return defer.reject(new Error('No attribute package found on Android manifest file'));
     });
 
     return defer.promise;
@@ -197,7 +207,7 @@ var isAndroidProject = function (folderPath) {
     var defer = Q.defer();
 
     getFilePath('anifest.xml', folderPath).then(function (filePath) {
-        var fileExists = (filePath != undefined);
+        var fileExists = !!filePath;
         return defer.resolve(fileExists);
 
     }).catch(function (err) {
@@ -233,7 +243,16 @@ var isIosProject = function (folderPath) {
  */
 var isWindowsPhoneProject = function (folderPath) {
     //TODO Find a Windows Phone project to use it against this function
-    return getFilePath('somethingOfWpProject.extension', folderPath);
+    var defer = Q.defer();
+
+    getFilePath('somethingOfWpProject.extension', folderPath).then(function(filePath){
+        var fileExists = !!filePath;
+        return defer.resolve(fileExists);
+    }).catch(function(err){
+        return defer.reject(err);
+    });
+
+    return defer.promise;
 };
 
 /**
@@ -243,8 +262,6 @@ var isWindowsPhoneProject = function (folderPath) {
 var printInfo = function (msg) {
     if (logging) {
         console.info(msg);
-    } else {
-        //Do not log anything
     }
 };
 
@@ -255,8 +272,6 @@ var printInfo = function (msg) {
 var printError = function (msg) {
     if (logging) {
         console.error(msg);
-    } else {
-        //Do not log anything
     }
 };
 
@@ -272,7 +287,7 @@ var execPromise = function (command, options) {
     var defer = Q.defer();
 
     exec(command, options, function (err, stdout, stderr) {
-        if (err) {
+        if (!!err) {
             defer.reject({err: err, stderr: stderr});
         } else {
             defer.resolve({res: stdout, out: stderr});
@@ -285,7 +300,7 @@ var execPromise = function (command, options) {
 /* TESTING HELPERS */
 if(process.env.NODE_ENV === 'test'){
     exports.execPromise = execPromise;
-    exports.getBundleIdiOS = getBundleIdiOS;
+    exports.getIosBundleId = getIosBundleId;
     exports.getFilePath = getFilePath;
     exports.getAndroidPackageName = getAndroidPackageName;
     exports.getInfoPlistRelative = getInfoPlistRelative;
@@ -294,6 +309,5 @@ if(process.env.NODE_ENV === 'test'){
     exports.isWindowsPhoneProject = isWindowsPhoneProject;
     exports.printInfo = printInfo;
     exports.printError = printError;
-} else {
-    //Do not export more than already exported functions
+    exports.logging = logging;
 }

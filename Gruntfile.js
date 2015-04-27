@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 
         jsdoc: {
             dist : {
-                src: ['*.js', 'test/*.js'],
+                src: ['*.js', 'test/*'],
                 options: {
                     destination: 'doc',
                     template:"node_modules/grunt-jsdoc/node_modules/ink-docstrap/template",
@@ -41,7 +41,7 @@ module.exports = function(grunt) {
                 options: {
                     reporter: 'spec'
                 },
-                src: ['test/*.js']
+                src: ['test/*']
             },
             cover:{
                 options:{
@@ -53,9 +53,10 @@ module.exports = function(grunt) {
 
         mocha_istanbul: {
             coverage: {
-                src: 'test', // a folder works nicely
+                src: 'test/*', // a folder works nicely
                 options: {
-                    mask: '*.js'
+                    mask: '*.js',
+                    ui: "tdd"
                 }
             }
         },
